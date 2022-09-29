@@ -129,7 +129,10 @@ class Board {
     assertValidPos (...coords) {
         for (let coord of coords) {
             assertDefined (coord);
-            assert (coord >= 0 && coord < this.dim, '0 <= coord < ' + this.dim + ' expected, got ' + coord);
+            assert (
+                coord >= 0 && coord < this.dim, 
+                '0 <= coord < ' + this.dim + ' expected, got ' + coord
+            );
         }
     }
 
@@ -181,14 +184,14 @@ class Board {
 }
 
 
-const board = new Board (3);
+// const board = new Board (3);
 
-board.content = [
-    -1, 1, 0,
-    -1, 8, 1,
-    -1, 8, -1
-];
+// board.content = [
+//     -1, -9, -6,
+//     4, -6, 1,
+//     -3, 8, 0
+// ];
 
-board.print();
-
-console.log(board.getWinner())
+// board.print();
+// console.log(board.getWinner());
+// assert (board.getWinner() == -1, 'Assertion failed, got different value :(');
