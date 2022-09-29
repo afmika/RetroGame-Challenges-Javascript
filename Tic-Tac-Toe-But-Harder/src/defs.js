@@ -44,7 +44,7 @@ class Piece {
         assertDefined (this.owner, 'owner is undefined');
         assertDefined (this.strength, 'strength is undefined');
         assert (this.strength > 0, 'strength must be > 0');
-        assert (this.owner != -1 || this.owner != 1, 'owner should take values -1 or 1');
+        assert (this.owner != Piece.BLACK || this.owner != Piece.WHITE, 'owner should take values -1 or 1');
     }
 }
 
@@ -125,7 +125,7 @@ class Board {
         const oriented_strength = this.get (x, y);
         if (oriented_strength == 0)
             return 0;
-        return oriented_strength < 0 ? -1 : 1;
+        return oriented_strength < 0 ? Piece.BLACK : Piece.WHITE;
     }
 
     /**
