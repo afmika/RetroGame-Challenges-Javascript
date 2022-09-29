@@ -10,8 +10,8 @@ const assertDefined = (value, msg) => {
     assert (value !== null && value !== undefined, msg || 'value undefined');
 };
 
-const assertValidSide = (state) => {
-    assert (state == Piece.BLACK || state == Piece.WHITE, 'side should take value -1 or 1');
+const assertValidSide = (state, msg) => {
+    assert (state == Piece.BLACK || state == Piece.WHITE, msg || 'side should take value -1 or 1');
 }
 
 /**
