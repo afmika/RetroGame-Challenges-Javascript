@@ -10,6 +10,10 @@ const assertDefined = (value, msg) => {
     assert (value !== null && value !== undefined, msg || 'value undefined');
 };
 
+const assertValidSide = (state) => {
+    assert (state == Piece.BLACK || state == Piece.WHITE, 'side should take value -1 or 1');
+}
+
 /**
  * @param {number} x 
  * @param {number} y 
@@ -44,7 +48,7 @@ class Piece {
         assertDefined (this.owner, 'owner is undefined');
         assertDefined (this.strength, 'strength is undefined');
         assert (this.strength > 0, 'strength must be > 0');
-        assert (this.owner != Piece.BLACK || this.owner != Piece.WHITE, 'owner should take values -1 or 1');
+        assertValidSide (this.owner);
     }
 }
 
@@ -150,7 +154,7 @@ class Board {
     getWinner () {
         let s_diag_left = 0, s_diag_right = 0;
         let n_empty_case = 0;
-        
+
         for (let i = 0; i < this.dim; i++) {
             let s_horz = 0, s_vert = 0;
 
@@ -168,7 +172,9 @@ class Board {
 
             if (filtered_sum.length > 0) {
                 const [value] = filtered_sum;
-                return value / this.dim;
+                const ans = value / this.dim;
+                assertValidSide (ans, 'expects -1 or 1');
+                return ans;
             }
         }
 
