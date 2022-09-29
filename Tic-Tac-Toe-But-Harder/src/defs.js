@@ -10,6 +10,12 @@ const assertDefined = (value, msg) => {
     assert (value !== null && value !== undefined, msg || 'value undefined');
 };
 
+/**
+ * @param {number} x 
+ * @param {number} y 
+ */
+const getGameCoordinates = (x, y) => [Math.floor (x / BLOC), Math.floor (y / BLOC)];
+
 class Piece {
     static EMPTY = 0;
     static BLACK = -1;
@@ -182,16 +188,3 @@ class Board {
         console.log (total);
     }
 }
-
-
-// const board = new Board (3);
-
-// board.content = [
-//     -1, -9, -6,
-//     4, -6, 1,
-//     -3, 8, 0
-// ];
-
-// board.print();
-// console.log(board.getWinner());
-// assert (board.getWinner() == -1, 'Assertion failed, got different value :(');

@@ -1,14 +1,20 @@
-/**
- * @param {number} x 
- * @param {number} y 
- * @returns 
- */
-function getGameCoordinates (x, y) {
-    return [Math.floor (x / BLOC), Math.floor ( y / BLOC)];
-}
+class Game {
+    /**
+     * @type {Board}
+     */
+    board;
 
-/**
- * @param {Board} board 
- */
-function getWinner (board) {
+    /**
+     * @type {number}
+     */
+    dim;
+
+    constructor (dim) {
+        this.dim = dim;
+        this.init ();
+    }
+
+    init () {
+        this.board = new Board (this.dim);
+    }
 }
