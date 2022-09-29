@@ -148,33 +148,34 @@ class Board {
      * @returns {number | null}
      */
     getWinner () {
-		let s_diag_left = 0, s_diag_right = 0;
+        let s_diag_left = 0, s_diag_right = 0;
         let n_empty_case = 0;
+        
         for (let i = 0; i < this.dim; i++) {
-			let s_horz = 0, s_vert = 0;
+            let s_horz = 0, s_vert = 0;
 
-			for (let j = 0; j < this.dim; j++) {
+            for (let j = 0; j < this.dim; j++) {
                 n_empty_case += this.getType (i, j) == 0 ? 1 : 0; 
-				s_horz += this.getType (i, j);
-				s_vert += this.getType (j, i);
-			}
+                s_horz += this.getType (i, j);
+                s_vert += this.getType (j, i);
+            }
 
-			s_diag_left  += this.getType (i, i);
-			s_diag_right += this.getType (i, this.dim - i - 1);
+            s_diag_left  += this.getType (i, i);
+            s_diag_right += this.getType (i, this.dim - i - 1);
 
-			let filtered_sum = [s_horz, s_vert, s_diag_right, s_diag_left]
-                    .filter(value => Math.abs (value) == this.dim);
+            let filtered_sum = [s_horz, s_vert, s_diag_right, s_diag_left]
+                        .filter(value => Math.abs (value) == this.dim);
 
             if (filtered_sum.length > 0) {
                 const [value] = filtered_sum;
                 return value / this.dim;
             }
-		}
+        }
 
         // no winner
         // if the grid is not full (n_empty_case > 0) : return null (game not finished yet)
         // otherwise return 0 (draw)
-		return n_empty_case > 0 ? null : 0;
+        return n_empty_case > 0 ? null : 0;
     }
 
     print () {
