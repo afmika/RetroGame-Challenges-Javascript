@@ -135,7 +135,7 @@ class Board {
 
 
     /**
-     * Get the winner : 1, -1, 0 (draw) or null (not ended yet)
+     * Determine the winner : 1, -1, 0 (draw) or null (not ended yet)
      * @returns {number | null}
      */
     getWinner () {
@@ -154,14 +154,13 @@ class Board {
 			s_diag_left  += this.getType (i, i);
 			s_diag_right += this.getType (i, this.dim - i - 1);
 
-			let sums = [s_horz, s_vert, s_diag_right, s_diag_left];
+			let filtered_sum = [s_horz, s_vert, s_diag_right, s_diag_left]
+                    .filter(value => Math.abs (value) == this.dim);
 
-            for (let value of sums)
-				if (Math.abs (value) == this.dim)
-					winner = value / this.dim;
-            
-			if (winner != 0)
-				return winner; // 1 or -1
+            if (filtered_sum.length > 0) {
+                const [value] = filtered_sum;
+                return value / this.dim;
+            }
 		}
 
         // no winner
@@ -175,7 +174,7 @@ class Board {
         for (let i = 0; i < this.dim; i++) {
             let row = [];
             for (let j = 0; j < this.dim; j++)
-                row.push (this.get(i, j));
+                row.push (this.get(j, i));
             total += row.join(' ') + '\n';
         }
         console.log (total);
@@ -183,14 +182,14 @@ class Board {
 }
 
 
-// const board = new Board (3);
+const board = new Board (3);
 
-// board.content = [
-//     1, 1, 3,
-//     -1, 8, 1,
-//     1, -1, -1
-// ];
+board.content = [
+    -1, 1, 0,
+    -1, 8, 1,
+    -1, 8, -1
+];
 
-// board.print();
+board.print();
 
-// console.log(board.getWinner())
+console.log(board.getWinner())
