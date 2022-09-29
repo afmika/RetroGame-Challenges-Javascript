@@ -140,7 +140,6 @@ class Board {
      */
     getWinner () {
 		let s_diag_left = 0, s_diag_right = 0;
-		let winner = 0;
         let n_empty_case = 0;
         for (let i = 0; i < this.dim; i++) {
 			let s_horz = 0, s_vert = 0;
