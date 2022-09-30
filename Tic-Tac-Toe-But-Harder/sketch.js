@@ -108,8 +108,8 @@ function getPieceClickedGiven (mX, mY) {
             const {x, y, diameter} = piece._graphics;
 
             const dr = (x - mX) ** 2 + (y - mY) ** 2; 
-            const r =  diameter / 2;
-            if (dr <= (r ** 2))
+            const r2 =  (diameter / 2) ** 2;
+            if (dr <= r2)
                 return piece;
             
         }
