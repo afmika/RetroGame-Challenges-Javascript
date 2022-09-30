@@ -55,4 +55,24 @@ class Game {
                 .push (new Piece (BLACK, strength));
         }
     }
+
+    /**
+     * @param {number} bx 
+     * @param {number} by 
+     * @returns {Piece | null}
+     */
+    findPieceByBoardPosition (bx, by) {
+        const sides = this.pieces_remaining.keys();
+        
+        for (let side of sides) {
+            const pieces = this.pieces_remaining.get (side);
+            for (let piece of pieces) {
+                const {x, y} = piece._board;
+                if (x == bx && y == by)
+                    return piece;
+            }
+        }
+
+        return null;
+    }
 }

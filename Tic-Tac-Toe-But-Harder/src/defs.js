@@ -45,13 +45,33 @@ class Piece {
         /**
          * @type {number}
          */
-        diameter : 0,
+        diameter : 0
+    }
+
+    /**
+     * Board space position
+     */
+    _board = {
+        /**
+         * @type {number}
+         */
+        x : Infinity,
+
+        /**
+         * @type {number}
+         */
+        y : Infinity
     }
 
     /**
      * @type {string}
      */
     _id = null;
+
+    /**
+     * @type {boolean}
+     */
+    _killed = false;
 
     /**
      * @param {number} owner 
@@ -77,6 +97,24 @@ class Piece {
         assertDefined (this.strength, 'strength is undefined');
         assert (this.strength > 0, 'strength must be > 0');
         assertValidSide (this.owner);
+    }
+
+    /**
+     * @param {Piece} piece 
+     */
+    strongerThan (piece) {
+        if (!piece) return false;
+        if (piece.oriented_strength * this.oriented_strength < 0)
+            return Math.abs(this.oriented_strength) > Math.abs(piece.oriented_strength);
+        return false; // same owner
+    }
+
+    kill () {
+        this._killed = true;
+    }
+
+    isKilled () {
+        return this._killed;
     }
 }
 
