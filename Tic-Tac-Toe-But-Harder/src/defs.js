@@ -74,6 +74,11 @@ class Piece {
     _killed = false;
 
     /**
+     * @type {boolean}
+     */
+    _used = false;
+
+    /**
      * @param {number} owner 
      * @param {number} strength 
      */
@@ -113,8 +118,16 @@ class Piece {
         this._killed = true;
     }
 
+    use () {
+        this._used = true;
+    }
+
     isKilled () {
         return this._killed;
+    }
+
+    isUsed () {
+        return this._used;
     }
 }
 

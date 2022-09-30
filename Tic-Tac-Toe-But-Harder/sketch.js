@@ -74,7 +74,7 @@ function mouseReleased () {
         // check if it's an empty case
         const [x, y] = getGameCoordinates (mouseX, mouseY);
         try {
-            // get(x, y) throws an error if it's invalid
+            // get(x, y) throws an error if invalid
             const value = game.board.get (x, y);
             const existing_piece = game.findPieceByBoardPosition (x, y);
             const is_stronger = locked_piece.strongerThan (existing_piece);
@@ -86,6 +86,7 @@ function mouseReleased () {
                 // canvas space
                 locked_piece._graphics.x = x * BLOC + BLOC / 2;
                 locked_piece._graphics.y = SIDE_HEIGHT + y * BLOC + BLOC / 2;
+                locked_piece.use (); // set _used = true
 
                 // board space
                 game.board.putPiece (x, y, locked_piece);

@@ -75,4 +75,27 @@ class Game {
 
         return null;
     }
+
+
+    /**
+     * @param {number?} owner 1 or -1
+     * @returns {Piece[]} 
+     */
+    findUnusedPiece (owner = null) {
+        const unused = [];
+        const sides = this.pieces_remaining.keys();
+        
+        for (let side of sides) {
+            const pieces = this.pieces_remaining.get (side);
+            for (let piece of pieces) {
+                if (!piece.isUsed()) {
+                    if (owner != null && piece.owner == owner)
+                        continue;
+                    unused.push (piece);
+                }
+            }
+        }
+
+        return unused;
+    }
 }
