@@ -1,6 +1,9 @@
-const GAME_SIZE = 400;
+const GAME_SIZE = 512;
+const SIDE_HEIGHT = 120;
+const PIECE_OFFSET = {x : 10, y : 10};
 const N_ROW = 3;
 const BLOC = GAME_SIZE / N_ROW;
+const BLOC_CORNER = BLOC / 6;
 
 const assert = (hyp, msg) => {
     if (!hyp) throw Error (msg || 'Assertion failed');
@@ -11,19 +14,44 @@ const assertDefined = (value, msg) => {
 };
 
 const assertValidSide = (state, msg) => {
-    assert (state == Piece.BLACK || state == Piece.WHITE, msg || 'side should take value -1 or 1');
+    assert (state === Piece.BLACK || state === Piece.WHITE, msg || 'side should take value -1 or 1');
 }
 
 /**
  * @param {number} x 
  * @param {number} y 
  */
-const getGameCoordinates = (x, y) => [Math.floor (x / BLOC), Math.floor (y / BLOC)];
+const getGameCoordinates = (x, y) => [Math.floor (x / BLOC), Math.floor ((y - SIDE_HEIGHT) / BLOC)];
 
 class Piece {
     static EMPTY = 0;
     static BLACK = -1;
     static WHITE = 1;
+
+    /**
+     * In game attributes
+     */
+    _graphics = {
+        /**
+         * @type {number}
+         */
+        x : 0,
+
+        /**
+         * @type {number}
+         */
+        y : 0,
+    
+        /**
+         * @type {number}
+         */
+        diameter : 0,
+    }
+
+    /**
+     * @type {string}
+     */
+    _id = null;
 
     /**
      * @param {number} owner 
@@ -85,9 +113,8 @@ class Board {
      * @param {number} value 
      */
     set (x, y, value) {
-        this.assertValid (x, y);
-        if (value === undefined || value === value)
-            throw Error ('value should be defined');
+        this.assertValidPos (x, y);
+        assertDefined (value);
         this.content[x + y * this.dim] = value; 
     }
 
