@@ -1,3 +1,15 @@
+const stat_minimax = {
+    last_call : 0,
+    total_call : 0,
+    list : []
+};
+
+const initStatisticsLastCall = () => {
+    if (stat_minimax.last_call > 0)
+        stat_minimax.list.push (stat_minimax.last_call);
+    stat_minimax.last_call = 0;
+}
+
 class Move {
     /**
      * @param {number} x 
@@ -44,6 +56,7 @@ class AIInput {
         this.board = board_copy;
     }
 }
+
 
 class AI {
     static MAX_DEPTH = 8;
@@ -99,6 +112,8 @@ class AI {
      * @returns {Move}
      */
     getBestMoveBlack (max_depth = AI.MAX_DEPTH) {
+        initStatisticsLastCall ();
+
         let best_move = null;
         const {remaining_values, board} = this.prepareInput ();
         const dim = board.dim;
@@ -163,6 +178,9 @@ class AI {
             return -static_score;
         }
 
+        stat_minimax.last_call++;
+        stat_minimax.total_call++;
+
         let score = maximizing ? -Infinity : +Infinity;
         const values = remaining_values.get (maximizing ? Piece.BLACK : Piece.WHITE);
         const dim = board.dim;
@@ -226,7 +244,7 @@ class AI {
             return this.game
                     .findUnusedPiece (type)
                     .map (piece => piece.oriented_strength)
-                    .sort ((a, b) => a.oriented_strength - b.oriented_strength);
+                    .sort ((a, b) => a - b);
         };
         remaining_values.set (Piece.BLACK, fetchUnused (Piece.BLACK));
         remaining_values.set (Piece.WHITE, fetchUnused (Piece.WHITE));
@@ -240,5 +258,10 @@ class AI {
     logInfos (...str) {
         const text = str.join(' ');
         console.log (text);
+    }
+
+    logStats () {
+        console.log('Stat', stat_minimax);
+        console.log('History :', stat_minimax.list.join('\n - '));
     }
 }
