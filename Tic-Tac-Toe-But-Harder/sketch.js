@@ -13,10 +13,18 @@ let computer = null;
  */
 let locked_piece = null, 
     locked_piece_attr = null;
+let lock_score = false;
 
 let show_menu = true;
+let show_loading = false;
 let winner = null;
 let default_text = 'Press space to start';
+
+let white_turn = true;
+
+let max_depth = 3;
+let cooldown = {max_time : 100, counter : 0};
+let game_stat = {black : 0, white : 0};
 
 // game init
 function setup () {
@@ -32,6 +40,8 @@ function start () {
     locked_piece = null;
     locked_piece_attr = null;
     show_menu = true;
+    show_loading = false;
+    lock_score = false;
 }
 
 // game loop
@@ -43,16 +53,34 @@ function draw () {
     winner = game.board.getWinner();
     let winner_text = '';
     if (winner != null) {
+        if (!lock_score) {
+            game_stat[winner == Piece.BLACK ? 'black' : 'white']++;
+            lock_score = true;
+        }
+        const stat_text = game_stat.white + ' : ' + game_stat.black;
+
         const _text = {};
-        _text[Piece.BLACK] = 'Black wins';
-        _text[Piece.WHITE] = 'White wins';
-        _text[0] = 'Draw';
+        _text[Piece.BLACK] = 'Black wins - ' + stat_text;
+        _text[Piece.WHITE] = 'White wins - ' + stat_text;
+        _text[0] = 'Draw - ' + stat_text;
         winner_text = _text [winner];
         show_menu = true;
     }
 
-    if (show_menu) {
+    if (show_menu)
         drawTextCentered (winner == null ? default_text : winner_text);
+    
+    if (!white_turn) {
+        drawTextLoading ('Thinking ...');
+        if (cooldown.counter >= cooldown.max_time) {
+            const move = computer.getBestMoveBlack (max_depth);
+            game.playMove (move);
+            white_turn = true;
+            cooldown.counter = 0;
+        } else {
+            // give some time to the renderer to actually render any new position
+            cooldown.counter++;
+        }
     }
 }
 
@@ -80,6 +108,12 @@ function mouseReleased () {
         // check if it's an empty case
         const [x, y] = getGameCoordinates (mouseX, mouseY);
         try {
+
+            const valid_state = (locked_piece.owner === Piece.WHITE &&  white_turn) 
+                            ||  (locked_piece.owner === Piece.BLACK && !white_turn);
+            if (!valid_state)
+                throw Error ('Illegal move');
+
             // get(x, y) throws an error if invalid
             const value = game.board.get (x, y);
             const existing_piece = game.findPieceByBoardPosition (x, y);
@@ -88,23 +122,15 @@ function mouseReleased () {
             if (value == Piece.EMPTY || is_stronger) {
                 if (is_stronger)
                     existing_piece.kill();
-
-                // canvas space
-                locked_piece._graphics.x = x * BLOC + BLOC / 2;
-                locked_piece._graphics.y = SIDE_HEIGHT + y * BLOC + BLOC / 2;
-                locked_piece.use (); // set _used = true
-
-                // board space
-                game.board.putPiece (x, y, locked_piece);
-                locked_piece._board.x = x;
-                locked_piece._board.y = y;
+                game.putPieceInBoard (x, y, locked_piece);
+                white_turn = !white_turn;
             } else
                 throw Error ('Not empty');
             
             game.board.print ();
         } catch (err) {
-            // restore
             console.log (err.message);
+            // restore
             locked_piece._graphics = {...locked_piece_attr};
         }
     }
@@ -138,6 +164,14 @@ function drawTextCentered (str) {
 
     fill (50);
     textSize (32);
+    textAlign(CENTER, CENTER);
+    text (str, GAME_SIZE / 2, SIDE_HEIGHT + GAME_SIZE / 2);
+    noFill ();
+}
+
+function drawTextLoading (str) {
+    fill (50);
+    textSize (16);
     textAlign(CENTER, CENTER);
     text (str, GAME_SIZE / 2, SIDE_HEIGHT + GAME_SIZE / 2);
     noFill ();

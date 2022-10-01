@@ -95,18 +95,13 @@ class AI {
                         used_set.add (v_id);
                         board.set (x, y, value);
 
-                        const score = this.minimax (-Infinity, +Infinity, false, board, remaining_values, used_set, 0, AI.MAX_DEPTH);
+                        const score = this.minimax (-Infinity, +Infinity, false, board, remaining_values, used_set, 1, max_depth);
                         if (score > max_score) {
                             max_score = score;
                             best_move = new Move (x, y, value);
                         }
 
                         // undo
-                        // if (opposed_side && is_stronger) {
-                        //     board.set (x, y, existing_value);
-                        // } else { // empty
-                        //     board.empty (x, y);
-                        // }
                         // existing_value can take 0 too
                         board.set (x, y, existing_value);
                         used_set.delete (v_id);
@@ -179,7 +174,7 @@ class AI {
                         board.set (x, y, existing_value);
                         used_set.delete (v_id);
 
-                        // prune
+                        // prune next branch
                         if (beta <= alpha)
                             break;
                     }

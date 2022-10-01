@@ -42,7 +42,7 @@ class Game {
         this.pieces_remaining.set (WHITE, []);
         this.pieces_remaining.set (BLACK, []);
 
-        const strengths = [1, 1, 2, 2, 3, 3];
+        const strengths = [1, 1, 1, 2, 2, 2, 3, 3, 3];
         this.max_strength = Math.max (...strengths);
         this.total_pieces = strengths.length;
 
@@ -99,5 +99,38 @@ class Game {
         }
 
         return unused;
+    }
+
+
+    /**
+     * @param {Move} move 
+     */
+    playMove (move) {
+        const {x, y, strength} = move;
+        // find the piece and 'use' it
+        const black_side = strength * Piece.BLACK > 0;
+        const pieces = this.findUnusedPiece (black_side ? Piece.BLACK : Piece.WHITE);
+        for (let piece of pieces) {
+            if (piece.oriented_strength == strength) {
+                this.putPieceInBoard (x, y, piece);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param {Piece} piece 
+     */
+    putPieceInBoard (x, y, piece) {
+        // screen space
+        piece._graphics.x = x * BLOC + BLOC / 2;
+        piece._graphics.y = SIDE_HEIGHT + y * BLOC + BLOC / 2;
+        piece.use (); // set _used = true
+
+        // board space
+        this.board.putPiece (x, y, piece);
+        piece._board.x = x;
+        piece._board.y = y;
     }
 }
