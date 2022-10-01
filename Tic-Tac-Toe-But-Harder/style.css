@@ -42,3 +42,20 @@ html, body {
 .hide {
   opacity: 0;
 }
+
+button {
+  width: auto;
+  padding: 10px 18px;
+  font-weight: bold;
+}
+button:hover {
+  opacity: 0.8;
+}
+
+.default_level_btn {
+  background-color: #337ab7;
+}
+
+.selected_level_btn {
+  background-color: #5cb85c;
+}

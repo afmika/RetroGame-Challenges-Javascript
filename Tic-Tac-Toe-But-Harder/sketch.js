@@ -22,7 +22,9 @@ let default_text = 'Press escape to start';
 
 let white_turn = true;
 
-let max_depth = 4;
+let level = {easy : 3, medium : 4, hard : 5};
+let defined_level = 'medium';
+let max_depth = level [defined_level]; // pretty strong already (no joke)
 let cooldown = {max_time : 100, counter : 0};
 let game_stat = {black : 0, white : 0};
 let game_end = false;
@@ -86,6 +88,7 @@ function draw () {
                 c_move = computer.getRandomMove ();
             } else
                 c_move = computer.getBestMoveBlack (max_depth);
+            console.log ('Black ', c_move);
             
             game.playMove (c_move);
             white_turn = !white_turn;
@@ -139,6 +142,7 @@ function mouseReleased () {
                 if (is_stronger)
                     existing_piece.kill();
                 game.putPieceInBoard (x, y, locked_piece);
+                console.log ('White ', new Move (x, y, locked_piece.oriented_strength));
                 white_turn = !white_turn;
                 game_has_no_pieces = false;
             } else
