@@ -18,13 +18,15 @@ let lock_score = false;
 let show_menu = true;
 let show_loading = false;
 let winner = null;
-let default_text = 'Press space to start';
+let default_text = 'Press escape to start';
 
 let white_turn = true;
 
-let max_depth = 3;
+let max_depth = 4;
 let cooldown = {max_time : 100, counter : 0};
 let game_stat = {black : 0, white : 0};
+let game_end = false;
+let game_has_no_pieces = true;
 
 // game init
 function setup () {
@@ -42,6 +44,8 @@ function start () {
     show_menu = true;
     show_loading = false;
     lock_score = false;
+    game_end = false;
+    game_has_no_pieces = true;
 }
 
 // game loop
@@ -65,17 +69,27 @@ function draw () {
         _text[0] = 'Draw - ' + stat_text;
         winner_text = _text [winner];
         show_menu = true;
+        game_end = true;
     }
 
-    if (show_menu)
-        drawTextCentered (winner == null ? default_text : winner_text);
-    
-    if (!white_turn) {
+    if (show_menu) {
+        showLog ();
+        writeLog (winner == null ? default_text : winner_text, true);
+    }
+
+    if (!white_turn && !game_end) {
         drawTextLoading ('Thinking ...');
         if (cooldown.counter >= cooldown.max_time) {
-            const move = computer.getBestMoveBlack (max_depth);
-            game.playMove (move);
-            white_turn = true;
+            let c_move = null;
+            if (game_has_no_pieces) { // AI starts first
+                console.log ('Random move picked');
+                c_move = computer.getRandomMove ();
+            } else
+                c_move = computer.getBestMoveBlack (max_depth);
+            
+            game.playMove (c_move);
+            white_turn = !white_turn;
+            game_has_no_pieces = false;
             cooldown.counter = 0;
         } else {
             // give some time to the renderer to actually render any new position
@@ -88,8 +102,10 @@ function draw () {
 function keyPressed () {
     if (winner != null)
         start();
-    if (keyCode == BACKSPACE || keyCode == ESCAPE || keyCode == 32)
+    if (keyCode == BACKSPACE || keyCode == ESCAPE || keyCode == 32) {
         show_menu = false;
+        hideLog ();
+    }
 }
 
 function mousePressed () {
@@ -124,6 +140,7 @@ function mouseReleased () {
                     existing_piece.kill();
                 game.putPieceInBoard (x, y, locked_piece);
                 white_turn = !white_turn;
+                game_has_no_pieces = false;
             } else
                 throw Error ('Not empty');
             
@@ -154,19 +171,6 @@ function drawCross () {
         rect ((i % N_ROW) * BLOC, SIDE_HEIGHT + Math.floor(i / N_ROW) * BLOC, BLOC, BLOC, BLOC_CORNER);
     noFill ();
     noStroke ();
-}
-
-function drawTextCentered (str) {
-    // erase background
-    fill (255);
-    rect (0, SIDE_HEIGHT / 1.8 + GAME_SIZE / 2, GAME_SIZE, GAME_SIZE / 4, BLOC_CORNER);
-    noFill ();
-
-    fill (50);
-    textSize (32);
-    textAlign(CENTER, CENTER);
-    text (str, GAME_SIZE / 2, SIDE_HEIGHT + GAME_SIZE / 2);
-    noFill ();
 }
 
 function drawTextLoading (str) {

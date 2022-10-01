@@ -2,11 +2,43 @@ html, body {
   height: 100%;
 }
 
-body {
+.game_container {
   margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.show_on_top {
+  position : fixed;
+  z-index: 9999;
+  background-color: black;
+  top : 0px;
+  left : 0px;
+  color: white;
+  height : 100%;
+  width : 100%;
+  opacity: 0.92;
+  background-color: black;
+}
+
+.default_text {
+  margin: 0;
+  justify-content: center;
+  display: flex;
+  font-size: 24px;
+}
+
+#game_log {
+  margin-top: 20%;
   display: flex;
   /* This centers our sketch horizontally. */
   justify-content: center;
   /* This centers our sketch vertically. */
   align-items: center;
+  font-size: 18px;
+}
+
+.hide {
+  opacity: 0;
 }

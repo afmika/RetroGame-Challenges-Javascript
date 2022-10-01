@@ -67,6 +67,34 @@ class AI {
     }
 
     /**
+     * Useful when the AI starts first
+     * @returns {Move}
+     */
+    getRandomMove () {
+        const {remaining_values, board} = this.prepareInput ();
+        const dim = board.dim;
+        const values = remaining_values.get (Piece.BLACK);
+
+        let possibilites = [];
+        for (let y = 0; y < dim; y++) {
+            for (let x = 0; x < dim; x++) {
+                const existing_piece = board.get (x, y);
+                if (existing_piece === Piece.EMPTY)
+                    possibilites.push ([x, y]);
+            }
+        }
+
+        if (possibilites.length == 0)
+            throw Error ('Unable to find a random a move, empty_count = 0');
+
+        const rng = x => Math.floor (x * Math.random ());
+        const [rx, ry] = possibilites [rng (possibilites.length)];
+        const rvalue = values [rng (values.length)];
+
+        return new Move (rx, ry, rvalue);
+    }
+
+    /**
      * @param {number?} max_depth 
      * @returns {Move}
      */
@@ -126,13 +154,12 @@ class AI {
      * @returns 
      */
     minimax (alpha, beta, maximizing, board, remaining_values, used_set, current_depth, max_depth) {
-        // console.log(current_depth);
         const winner = board.getWinner ();
         if (winner != null || current_depth >= max_depth) {
             const static_score = AI.MAX_DEPTH - current_depth + 1;
             if (winner == Piece.BLACK)
                 return +static_score;
-            console.log('Depth ', current_depth, ' score', static_score);
+            this.logInfos ('Depth ', current_depth, ' score', static_score);
             return -static_score;
         }
 
@@ -202,5 +229,13 @@ class AI {
         remaining_values.set (Piece.WHITE, fetchUnused (Piece.WHITE));
 
         return new AIInput (remaining_values, board_copy);  
+    }
+
+    /**
+     * @param  {...string} str 
+     */
+    logInfos (...str) {
+        const text = str.join(' ');
+        console.log (text);
     }
 }
