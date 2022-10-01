@@ -36,7 +36,7 @@ html, body {
   justify-content: center;
   /* This centers our sketch vertically. */
   align-items: center;
-  font-size: 18px;
+  font-size: 32px;
 }
 
 .hide {

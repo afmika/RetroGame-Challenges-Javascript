@@ -220,6 +220,9 @@ class AI {
         const board_copy = this.game.board.copy ();
         const remaining_values = new Map();
         const fetchUnused = type => {
+            // /!\ Pruning heurestic for alpha-beta
+            // low value moves are more likely to prioritize low-strength pieces
+            // hence we sort in ascending order
             return this.game
                     .findUnusedPiece (type)
                     .map (piece => piece.oriented_strength)

@@ -21,7 +21,7 @@ function pickLevel (key) {
     // restore previous
     document.getElementById ('level_btn_' + defined_level).className = 'default_level_btn';
     
-    // define new
+    // define new level
     // see sketch.js
     defined_level = key;
     max_depth = level[defined_level];
