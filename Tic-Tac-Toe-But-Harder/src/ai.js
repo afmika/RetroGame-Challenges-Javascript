@@ -46,7 +46,7 @@ class AIInput {
 }
 
 class AI {
-    static MAX_DEPTH = 5;
+    static MAX_DEPTH = 8;
     /**
      * @type {Game}
      */
@@ -78,7 +78,6 @@ class AI {
         const used_set = new Set();
         let max_score = -Infinity;
         const values = remaining_values.get (Piece.BLACK);
-        console.log( values )
 
         for (let y = 0; y < dim; y++) {
             for (let x = 0; x < dim; x++) {
@@ -96,7 +95,7 @@ class AI {
                         used_set.add (v_id);
                         board.set (x, y, value);
 
-                        const score = this.minimax (false, board, remaining_values, used_set, 0, AI.MAX_DEPTH);
+                        const score = this.minimax (-Infinity, +Infinity, false, board, remaining_values, used_set, 0, AI.MAX_DEPTH);
                         if (score > max_score) {
                             max_score = score;
                             best_move = new Move (x, y, value);
@@ -121,6 +120,8 @@ class AI {
 
 
     /**
+     * @param {number} alpha 
+     * @param {number} beta
      * @param {boolean} maximizing 
      * @param {Board} board 
      * @param {Map<number, number[]>} remaining_values 
@@ -129,7 +130,7 @@ class AI {
      * @param {number} max_depth 
      * @returns 
      */
-    minimax (maximizing, board, remaining_values, used_set, current_depth, max_depth) {
+    minimax (alpha, beta, maximizing, board, remaining_values, used_set, current_depth, max_depth) {
         // console.log(current_depth);
         const winner = board.getWinner ();
         if (winner != null || current_depth >= max_depth) {
@@ -164,15 +165,23 @@ class AI {
                         used_set.add (v_id);
                         board.set (x, y, value);
 
-                        const computed = this.minimax (!maximizing, board, remaining_values, used_set, current_depth + 1, max_depth);
-                        if (maximizing)
+                        const computed = this.minimax (alpha, beta, !maximizing, board, remaining_values, used_set, current_depth + 1, max_depth);
+                        if (maximizing) {
                             score = Math.max (score, computed);
-                        else
+                            alpha = Math.max (alpha, score);
+                        } else {
                             score = Math.min (score, computed);
+                            beta = Math.min (beta, score);
+                        }
 
+                        // undo
                         // existing_value can take 0 too
                         board.set (x, y, existing_value);
                         used_set.delete (v_id);
+
+                        // prune
+                        if (beta <= alpha)
+                            break;
                     }
                 }
             }
@@ -188,8 +197,14 @@ class AI {
     prepareInput () {
         const board_copy = this.game.board.copy ();
         const remaining_values = new Map();
-        remaining_values.set (Piece.BLACK, this.game.findUnusedPiece (Piece.BLACK).map (_ => _.oriented_strength));
-        remaining_values.set (Piece.WHITE, this.game.findUnusedPiece (Piece.WHITE).map (_ => _.oriented_strength));
+        const fetchUnused = type => {
+            return this.game
+                    .findUnusedPiece (type)
+                    .map (piece => piece.oriented_strength)
+                    .sort ((a, b) => a.oriented_strength - b.oriented_strength);
+        };
+        remaining_values.set (Piece.BLACK, fetchUnused (Piece.BLACK));
+        remaining_values.set (Piece.WHITE, fetchUnused (Piece.WHITE));
 
         return new AIInput (remaining_values, board_copy);  
     }
