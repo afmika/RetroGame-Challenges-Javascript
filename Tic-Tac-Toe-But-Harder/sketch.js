@@ -59,7 +59,7 @@ function draw () {
     winner = game.board.getWinner();
     let winner_text = '';
     if (winner != null) {
-        if (!lock_score) {
+        if (!lock_score && (winner == Piece.BLACK || winner == Piece.WHITE)) { // no draw
             game_stat[winner == Piece.BLACK ? 'black' : 'white']++;
             lock_score = true;
         }
@@ -178,11 +178,14 @@ function drawCross () {
 }
 
 function drawTextLoading (str) {
-    fill (50);
-    textSize (16);
-    textAlign(CENTER, CENTER);
+    fill (200);
+    strokeWeight (1.1);
+    stroke (0);
+    textSize (24);
+    textAlign (CENTER, CENTER);
     text (str, GAME_SIZE / 2, SIDE_HEIGHT + GAME_SIZE / 2);
     noFill ();
+    noStroke ();
 }
 
 function preparePiecesPositions () {

@@ -1,6 +1,5 @@
 const GAME_SIZE = 400;
-const SIDE_HEIGHT = 80;
-const PIECE_OFFSET = {x : 10, y : 10};
+const SIDE_HEIGHT = 120;
 const N_ROW = 3;
 const BLOC = GAME_SIZE / N_ROW;
 const BLOC_CORNER = BLOC / 6;
