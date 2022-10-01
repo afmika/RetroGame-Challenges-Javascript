@@ -159,7 +159,7 @@ class AI {
             const static_score = AI.MAX_DEPTH - current_depth + 1;
             if (winner == Piece.BLACK)
                 return +static_score;
-            this.logInfos ('Depth ', current_depth, ' score', static_score);
+            // this.logInfos ('Depth ', current_depth, ' score', static_score);
             return -static_score;
         }
 
