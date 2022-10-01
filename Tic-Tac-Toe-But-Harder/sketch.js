@@ -4,6 +4,11 @@
 let game = null;
 
 /**
+ * @type {AI}
+ */
+let computer = null;
+
+/**
  * @type {Piece}
  */
 let locked_piece = null, 
@@ -21,6 +26,7 @@ function setup () {
 
 function start () {
     game = new Game (N_ROW);
+    computer = new AI (game);
     preparePiecesPositions ();
     winner = null;
     locked_piece = null;
@@ -139,12 +145,12 @@ function drawTextCentered (str) {
 
 function preparePiecesPositions () {
     const sides = game.pieces_remaining.keys();
-    const max_diameter = GAME_SIZE / game.total_pieces;
+    const max_diameter = Math.min (GAME_SIZE / game.total_pieces, SIDE_HEIGHT / 2);
     const max_strength = game.max_strength;
     
     for (let side of sides) {
         const pieces = game.pieces_remaining.get (side);
-        const dy = 0 + (side > 0 ? (GAME_SIZE + SIDE_HEIGHT) : 0);
+        const dy = side > 0 ? (GAME_SIZE + SIDE_HEIGHT) : 0;
         for (let i = 0; i < pieces.length; i++) {
             const piece = pieces[i];
             piece._graphics.x = max_diameter * (i  + .5);

@@ -23,6 +23,10 @@ const assertValidSide = (state, msg) => {
  */
 const getGameCoordinates = (x, y) => [Math.floor (x / BLOC), Math.floor ((y - SIDE_HEIGHT) / BLOC)];
 
+const getIdValue = (value, index) => {
+    return 'i' + index + '_' + (value * Piece.BLACK > 0 ? 'b' : 'w') + Math.abs(value);
+}
+
 class Piece {
     static EMPTY = 0;
     static BLACK = -1;
@@ -109,9 +113,16 @@ class Piece {
      */
     strongerThan (piece) {
         if (!piece) return false;
-        if (piece.oriented_strength * this.oriented_strength < 0)
-            return Math.abs(this.oriented_strength) > Math.abs(piece.oriented_strength);
-        return false; // same owner
+        return this.strongerThanValue (piece.oriented_strength);
+    }
+
+    /**
+     * @param {number} value 
+     */
+    strongerThanValue (value) {
+        if (value * this.oriented_strength < 0)
+            return Math.abs(this.oriented_strength) > Math.abs(value);
+        return false; // same owner or value * strength == 0 => empty case
     }
 
     kill () {
@@ -126,8 +137,16 @@ class Piece {
         return this._killed;
     }
 
+    unKill () {
+        this._killed = false;
+    }
+
     isUsed () {
         return this._used;
+    }
+
+    unUse () {
+        this._used = false;
     }
 }
 
@@ -260,6 +279,16 @@ class Board {
         // if the grid is not full (n_empty_case > 0) : return null (game not finished yet)
         // otherwise return 0 (draw)
         return n_empty_case > 0 ? null : 0;
+    }
+
+    /**
+     * Carbon copy of the current instance
+     * @returns {Board}
+     */
+    copy () {
+        const board = new Board (this.dim);
+        board.content = this.content.map(_ => _);
+        return board;
     }
 
     print () {

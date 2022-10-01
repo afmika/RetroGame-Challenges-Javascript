@@ -42,7 +42,7 @@ class Game {
         this.pieces_remaining.set (WHITE, []);
         this.pieces_remaining.set (BLACK, []);
 
-        const strengths = [1, 1, 1, 2, 2, 2, 3, 3, 3];
+        const strengths = [1, 1, 2, 2, 3, 3];
         this.max_strength = Math.max (...strengths);
         this.total_pieces = strengths.length;
 
@@ -89,9 +89,11 @@ class Game {
             const pieces = this.pieces_remaining.get (side);
             for (let piece of pieces) {
                 if (!piece.isUsed()) {
-                    if (owner != null && piece.owner == owner)
-                        continue;
-                    unused.push (piece);
+                    if (owner == null) {
+                        unused.push (piece);
+                    } else if (side == owner) {
+                        unused.push (piece);
+                    }
                 }
             }
         }
