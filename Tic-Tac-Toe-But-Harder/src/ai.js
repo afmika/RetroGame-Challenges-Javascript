@@ -197,11 +197,13 @@ class AI {
     minimax (alpha, beta, maximizing, board, remaining_values, used_set, current_depth, max_depth) {
         const winner = board.getWinner ();
         if (winner != null || current_depth >= max_depth) {
-            const static_score = AI.MAX_DEPTH - current_depth + 1;
-            if (winner == Piece.BLACK)
-                return +static_score;
-            // this.logInfos ('Depth ', current_depth, ' score', static_score);
-            return -static_score;
+            let static_score = AI.MAX_DEPTH - current_depth;
+            // game not ended yet
+            // should have less points
+            if (winner === null)
+                return (maximizing ? +1 : -1) * (static_score - 1);
+            // game ended, we have a winner
+            return winner === Piece.BLACK ? +static_score : -static_score;
         }
 
         this.statistics.depth_level = max_depth;
