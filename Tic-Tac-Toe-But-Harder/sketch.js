@@ -99,10 +99,11 @@ function draw () {
             } else
                 c_move = computer.getBestMoveBlack (max_depth);
 
-            console.log ('Black', c_move);
-            game.board.print ();
             
             game.playMove (c_move);
+            console.log ('Black', c_move);
+            game.board.print ();
+
             white_turn = !white_turn;
             game_has_no_pieces = false;
             cooldown.counter = 0;
