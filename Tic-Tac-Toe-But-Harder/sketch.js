@@ -31,10 +31,24 @@ let game_stat = {black : 0, white : 0};
 let game_end = false;
 let game_has_no_pieces = true;
 
+// sound effect
+let ai_eats_effect = null,
+    black_wins_effect = null,
+    white_wins_effect = null,
+    select_effect = null,
+    tic_effect = null;
+
 // game init
 function setup () {
     createCanvas (GAME_SIZE, GAME_SIZE + 2 * SIDE_HEIGHT);
     start ();
+
+    soundFormats ('ogg');
+    ai_eats_effect = loadSound ('assets/ai_eats.ogg');
+    black_wins_effect = loadSound ('assets/black_wins.ogg');
+    white_wins_effect = loadSound ('assets/white_wins.ogg');
+    select_effect = loadSound ('assets/select.ogg');
+    tic_effect = loadSound ('assets/tic.ogg');
 }
 
 function start () {
@@ -67,6 +81,7 @@ function draw () {
             lock_score = true;
         }
         const stat_text = 'Score ' + game_stat.white + ' : ' + game_stat.black;
+        let end_effect = winner == Piece.BLACK ? black_wins_effect : white_wins_effect;
 
         const _text = {};
         _text[Piece.BLACK] = 'Black wins - ' + stat_text;
@@ -77,6 +92,8 @@ function draw () {
         game_end = true;
 
         if (show_log_at_end) {
+            end_effect.play ();
+
             console.log ('=== ' + winner_text + ' ===');
             computer.saveAndResetStatistics ();
             computer.logStats ();
@@ -94,13 +111,13 @@ function draw () {
         drawTextLoading ('Thinking ...');
         if (cooldown.counter >= cooldown.max_time) {
             let c_move = null;
+            select_effect.play ();
             if (game_has_no_pieces) { // AI starts first
                 console.log ('Random move picked');
                 c_move = computer.getRandomMove ();
             } else
                 c_move = computer.getBestMoveBlack (max_depth);
 
-            
             game.playMove (c_move);
             console.log ('Black', c_move);
             game.board.print ();
@@ -125,6 +142,7 @@ function keyPressed () {
     if (keyCode == BACKSPACE || keyCode == ESCAPE || keyCode == 32) {
         show_menu = false;
         hideLog ();
+        tic_effect.play ();
     }
 }
 
@@ -133,8 +151,10 @@ function mousePressed () {
     if (mouseY < SIDE_HEIGHT || mouseY > (GAME_SIZE + SIDE_HEIGHT)) {
         // click a piece
         locked_piece = getPieceClickedGiven (mouseX, mouseY);
-        if (locked_piece) // now clone the state
+        if (locked_piece) { // now clone the state
+            select_effect.play ();
             locked_piece_attr = {...locked_piece._graphics};
+        }
     }
 }
 
