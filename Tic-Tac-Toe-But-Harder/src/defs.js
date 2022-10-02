@@ -67,11 +67,6 @@ class Piece {
     }
 
     /**
-     * @type {string}
-     */
-    _id = null;
-
-    /**
      * @type {boolean}
      */
     _killed = false;

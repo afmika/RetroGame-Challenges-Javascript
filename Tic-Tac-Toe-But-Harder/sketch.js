@@ -17,6 +17,7 @@ let lock_score = false;
 
 let show_menu = true;
 let show_loading = false;
+let show_log_at_end = true;
 let winner = null;
 let default_text = 'Press escape to start';
 
@@ -37,6 +38,7 @@ function setup () {
 }
 
 function start () {
+    console.log('=== New game initialized - level set to ' + defined_level + ' ===');
     game = new Game (N_ROW);
     computer = new AI (game);
     preparePiecesPositions ();
@@ -48,6 +50,7 @@ function start () {
     lock_score = false;
     game_end = false;
     game_has_no_pieces = true;
+    show_log_at_end = true;
 }
 
 // game loop
@@ -63,7 +66,7 @@ function draw () {
             game_stat[winner == Piece.BLACK ? 'black' : 'white']++;
             lock_score = true;
         }
-        const stat_text = game_stat.white + ' : ' + game_stat.black;
+        const stat_text = 'Score ' + game_stat.white + ' : ' + game_stat.black;
 
         const _text = {};
         _text[Piece.BLACK] = 'Black wins - ' + stat_text;
@@ -72,6 +75,13 @@ function draw () {
         winner_text = _text [winner];
         show_menu = true;
         game_end = true;
+
+        if (show_log_at_end) {
+            console.log ('=== ' + winner_text + ' ===');
+            computer.logStats ();
+            computer.initStatsLastCall ();
+            show_log_at_end = false;
+        }
     }
 
     if (show_menu) {
@@ -88,7 +98,9 @@ function draw () {
                 c_move = computer.getRandomMove ();
             } else
                 c_move = computer.getBestMoveBlack (max_depth);
-            console.log ('Black ', c_move);
+
+            console.log ('Black', c_move);
+            game.board.print ();
             
             game.playMove (c_move);
             white_turn = !white_turn;
@@ -142,7 +154,7 @@ function mouseReleased () {
                 if (is_stronger)
                     existing_piece.kill();
                 game.putPieceInBoard (x, y, locked_piece);
-                console.log ('White ', new Move (x, y, locked_piece.oriented_strength));
+                console.log ('White', new Move (x, y, locked_piece.oriented_strength));
                 white_turn = !white_turn;
                 game_has_no_pieces = false;
             } else
@@ -155,6 +167,7 @@ function mouseReleased () {
             locked_piece._graphics = {...locked_piece_attr};
         }
     }
+
     locked_piece = null;
     locked_piece_attr = null;
 }
@@ -201,8 +214,6 @@ function preparePiecesPositions () {
             piece._graphics.x = max_diameter * (i  + .5);
             piece._graphics.y = max_diameter + dy; 
             piece._graphics.diameter = max_diameter * (piece.strength / max_strength);
-            // define the id
-            piece._id = (side < 0 ? 'b' : 'w') + i;
         }
     }
 }

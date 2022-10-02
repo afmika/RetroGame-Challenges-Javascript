@@ -1,15 +1,3 @@
-const stat_minimax = {
-    last_call : 0,
-    total_call : 0,
-    list : []
-};
-
-const initStatisticsLastCall = () => {
-    if (stat_minimax.last_call > 0)
-        stat_minimax.list.push (stat_minimax.last_call);
-    stat_minimax.last_call = 0;
-}
-
 class Move {
     /**
      * @param {number} x 
@@ -59,7 +47,18 @@ class AIInput {
 
 
 class AI {
+    
     static MAX_DEPTH = 8;
+    
+    /**
+     * AI call stats
+     */
+    statistics = {
+        last_call : 0,
+        total_call : 0,
+        history : []
+    };
+
     /**
      * @type {Game}
      */
@@ -112,7 +111,7 @@ class AI {
      * @returns {Move}
      */
     getBestMoveBlack (max_depth = AI.MAX_DEPTH) {
-        initStatisticsLastCall ();
+        this.initStatsLastCall ();
 
         let best_move = null;
         const {remaining_values, board} = this.prepareInput ();
@@ -178,8 +177,8 @@ class AI {
             return -static_score;
         }
 
-        stat_minimax.last_call++;
-        stat_minimax.total_call++;
+        this.statistics.last_call++;
+        this.statistics.total_call++;
 
         let score = maximizing ? -Infinity : +Infinity;
         const values = remaining_values.get (maximizing ? Piece.BLACK : Piece.WHITE);
@@ -260,8 +259,30 @@ class AI {
         console.log (text);
     }
 
+    initStatsLastCall () {
+        if (this.statistics.last_call > 0)
+            this.statistics.history.push (this.statistics.last_call);
+        this.statistics.last_call = 0;
+    }
+
+    initStatsAll () {
+        this.statistics.last_call = 0;
+        this.statistics.total_call = 0;
+        this.statistics.history = [];
+    }
+
     logStats () {
-        console.log('Stat', stat_minimax);
-        console.log('History :', stat_minimax.list.join('\n - '));
+        console.log (
+            'AI Minimax stats :', 
+            'Total call ' + this.statistics.total_call, 
+            'Last call ' + this.statistics.last_call
+        );
+        console.log (
+            'History :\n', 
+            this.statistics
+                .history
+                .map ((v, i) => `#${i+1} move => ${v} calls`)
+                .join('\n ')
+        );
     }
 }
