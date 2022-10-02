@@ -78,8 +78,9 @@ function draw () {
 
         if (show_log_at_end) {
             console.log ('=== ' + winner_text + ' ===');
+            computer.saveAndResetStatistics ();
             computer.logStats ();
-            computer.initStatsLastCall ();
+            // statistics
             show_log_at_end = false;
         }
     }
@@ -103,6 +104,9 @@ function draw () {
             game.playMove (c_move);
             console.log ('Black', c_move);
             game.board.print ();
+
+            // statistics
+            computer.saveStatLastCallCount ();
 
             white_turn = !white_turn;
             game_has_no_pieces = false;

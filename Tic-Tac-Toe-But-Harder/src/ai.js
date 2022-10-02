@@ -46,18 +46,46 @@ class AIInput {
 }
 
 
-class AI {
+class Statistics {
+    /**
+     * @type {number}
+     */
+    depth_level = 0;
+
+    /**
+     * @type {number}
+     */
+    last_call_count = 0;
     
+    /**
+     * @type {number}
+     */
+    total_call_count = 0;
+    
+    /**
+     * @type {number[]}
+     */
+    history = [];
+}
+
+
+class AI {
+    /**
+     * Default depth
+     * @type {number}
+     */
     static MAX_DEPTH = 8;
+
+    /**
+    * @type {Statistics[]}
+    */
+    static statistics_history = [];
     
     /**
      * AI call stats
+     * @type {Statistics}
      */
-    statistics = {
-        last_call : 0,
-        total_call : 0,
-        history : []
-    };
+    statistics = new Statistics ();
 
     /**
      * @type {Game}
@@ -111,7 +139,6 @@ class AI {
      * @returns {Move}
      */
     getBestMoveBlack (max_depth = AI.MAX_DEPTH) {
-        this.initStatsLastCall ();
 
         let best_move = null;
         const {remaining_values, board} = this.prepareInput ();
@@ -177,8 +204,9 @@ class AI {
             return -static_score;
         }
 
-        this.statistics.last_call++;
-        this.statistics.total_call++;
+        this.statistics.depth_level = max_depth;
+        this.statistics.last_call_count++;
+        this.statistics.total_call_count++;
 
         let score = maximizing ? -Infinity : +Infinity;
         const values = remaining_values.get (maximizing ? Piece.BLACK : Piece.WHITE);
@@ -259,30 +287,59 @@ class AI {
         console.log (text);
     }
 
-    initStatsLastCall () {
-        if (this.statistics.last_call > 0)
-            this.statistics.history.push (this.statistics.last_call);
-        this.statistics.last_call = 0;
+    /**
+     * Save and reset `last_call_count`
+     */
+    saveStatLastCallCount () {
+        this.statistics.history.push (this.statistics.last_call_count);
+        this.statistics.last_call_count = 0;
     }
 
-    initStatsAll () {
-        this.statistics.last_call = 0;
-        this.statistics.total_call = 0;
-        this.statistics.history = [];
+    /**
+     * Save then reset statistics
+     */
+    saveAndResetStatistics () {
+        // save
+        AI.statistics_history.push (this.statistics);
+        // reset
+        this.statistics = new Statistics ();
     }
 
+    /**
+     * Log latest data from `statistics_history`
+     */
     logStats () {
+        if (AI.statistics_history.length == 0) {
+            console.log ('=== No data ===');
+            return;
+        }
+        const n_instances = AI.statistics_history.length;
+
+        const statistics = AI.statistics_history [n_instances - 1];
+        const round = x => Math.round (x * 100) / 100;
+        const avg = n_instances == 0 ? 0 : AI.statistics_history
+                                            .map (stat => stat.total_call_count)
+                                            .reduce ((acc, x) => acc + x) / n_instances;
+        
         console.log (
             'AI Minimax stats :', 
-            'Total call ' + this.statistics.total_call, 
-            'Last call ' + this.statistics.last_call
+            'Total call ' + statistics.total_call_count, 
+            'Last call ' + statistics.last_call_count,
+            'Max depth ' + statistics.depth_level
         );
+
         console.log (
             'History :\n', 
-            this.statistics
+            statistics
                 .history
                 .map ((v, i) => `#${i+1} move => ${v} calls`)
                 .join('\n ')
+        );
+
+        console.log (
+            'Average total :', 
+            round (avg) + ' calls ', 
+            '(' + n_instances + ' game(s))'
         );
     }
 }
