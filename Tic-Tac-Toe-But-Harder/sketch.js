@@ -215,6 +215,9 @@ function preparePiecesPositions () {
             piece._graphics.x = max_diameter * (i  + .5);
             piece._graphics.y = max_diameter + dy; 
             piece._graphics.diameter = max_diameter * (piece.strength / max_strength);
+            // reverse black
+            if (side === Piece.BLACK)
+                piece._graphics.x = GAME_SIZE - piece._graphics.x;
         }
     }
 }
