@@ -32,8 +32,7 @@ let game_end = false;
 let game_has_no_pieces = true;
 
 // sound effect
-let ai_eats_effect = null,
-    black_wins_effect = null,
+let black_wins_effect = null,
     white_wins_effect = null,
     select_effect = null,
     tic_effect = null;
@@ -44,7 +43,6 @@ function setup () {
     start ();
 
     soundFormats ('ogg');
-    ai_eats_effect = loadSound ('assets/ai_eats.ogg');
     black_wins_effect = loadSound ('assets/black_wins.ogg');
     white_wins_effect = loadSound ('assets/white_wins.ogg');
     select_effect = loadSound ('assets/select.ogg');
