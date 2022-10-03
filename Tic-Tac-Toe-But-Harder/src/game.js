@@ -89,11 +89,8 @@ class Game {
             const pieces = this.pieces_remaining.get (side);
             for (let piece of pieces) {
                 if (!piece.isUsed()) {
-                    if (owner == null) {
+                    if (owner == null || owner == side)
                         unused.push (piece);
-                    } else if (side == owner) {
-                        unused.push (piece);
-                    }
                 }
             }
         }
@@ -120,6 +117,8 @@ class Game {
     }
 
     /**
+     * @param {number} x 
+     * @param {number} y 
      * @param {Piece} piece 
      */
     putPieceInBoard (x, y, piece) {
