@@ -109,12 +109,12 @@ function draw () {
         drawTextLoading ('Thinking ...');
         if (cooldown.counter >= cooldown.max_time) {
             let c_move = null;
-            select_effect.play ();
             if (game_has_no_pieces) { // AI starts first
                 console.log ('Random move picked');
                 c_move = computer.getRandomMove ();
             } else
                 c_move = computer.getBestMoveBlack (max_depth);
+            select_effect.play ();
 
             game.playMove (c_move);
             console.log ('Black', c_move);
