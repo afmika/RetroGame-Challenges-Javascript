@@ -125,7 +125,7 @@ class AI {
         }
 
         if (possibilities.length == 0)
-            throw Error ('Unable to find a random a move, empty_count = 0');
+            throw Error ('Unable to find a random move, empty_count = 0');
 
         const rng = x => Math.floor (x * Math.random ());
         const [rx, ry] = possibilities [rng (possibilities.length)];
