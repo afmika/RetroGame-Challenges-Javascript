@@ -333,7 +333,7 @@ class AI {
         // To avoid repeating patterns
         // for each strength type we might want to
         // randomize which move should be prioritized
-        // Note : each type (cluster) has been sorted in ascending order at this point
+        // Note : each type (cluster) has been sorted in descending order at this point
         /** @type {Map<number, Move[]>} */
         const clusters = new Map ();
         for (let move of moves) {
