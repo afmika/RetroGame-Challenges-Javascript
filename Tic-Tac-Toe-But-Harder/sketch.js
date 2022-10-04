@@ -23,7 +23,7 @@ let default_text = 'Press escape to start';
 
 let white_turn = true;
 
-let level = {easy : 3, medium : 4, hard : 5};
+let level = {easy : 3, medium : 4, hard : 5, insane : 6};
 let defined_level = 'medium';
 let max_depth = level [defined_level]; // pretty strong already (no joke)
 let cooldown = {max_time : 100, counter : 0};
