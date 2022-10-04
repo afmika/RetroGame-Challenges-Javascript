@@ -56,6 +56,11 @@ class Statistics {
      * @type {number}
      */
     last_call_count = 0;
+
+    /**
+     * @type {number}
+     */
+    last_call_prune_count = 0;
     
     /**
      * @type {number}
@@ -249,8 +254,10 @@ class AI {
                         used_set.delete (v_id);
 
                         // prune next branch
-                        if (beta <= alpha)
+                        if (beta <= alpha) {
+                            this.statistics.last_call_prune_count++;
                             break;
+                        }
                     }
                 }
             }
@@ -293,8 +300,12 @@ class AI {
      * Save and reset `last_call_count`
      */
     saveStatLastCallCount () {
-        this.statistics.history.push (this.statistics.last_call_count);
+        this.statistics.history.push ({
+            call_count : this.statistics.last_call_count,
+            pruned_count : this.statistics.last_call_prune_count
+        });
         this.statistics.last_call_count = 0;
+        this.statistics.last_call_prune_count = 0;
     }
 
     /**
@@ -334,7 +345,12 @@ class AI {
             'History :\n', 
             statistics
                 .history
-                .map ((v, i) => `#${i+1} move => ${v} calls`)
+                .map ((move_stat, i) => {
+                    const {call_count, pruned_count} = move_stat;
+                    const at_least_total = pruned_count + call_count;
+                    const ratio = round (100 * pruned_count / (at_least_total == 0 ? 1 : at_least_total));
+                    return  `#${i+1} move => ${call_count} calls | pruned ${pruned_count} (>=${ratio} %)`
+                })
                 .join('\n ')
         );
 
