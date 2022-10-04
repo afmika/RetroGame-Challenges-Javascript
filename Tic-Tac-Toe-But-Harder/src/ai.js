@@ -22,6 +22,11 @@ class Move {
          * @type {number}
          */
         this.strength = strength;
+
+        /**
+         * @type {string}
+         */
+        this.v_id = '<any>';
     }
 }
 
@@ -151,37 +156,27 @@ class AI {
 
         const used_set = new Set();
         let max_score = -Infinity;
-        const values = remaining_values.get (Piece.BLACK);
 
-        for (let y = 0; y < dim; y++) {
-            for (let x = 0; x < dim; x++) {
-                for (let i = 0; i < values.length; i++) {
-                    const value = values[i];
-                    const v_id = getIdValue (value, i);
-                    
-                    // 0 if empty
-                    const existing_value = board.get (x, y);
-                    const opposed_side = existing_value * value < 0;
-                    const is_stronger = Math.abs(value) > Math.abs(existing_value);
+        const moves = AI.generateMoves (board, Piece.BLACK, remaining_values, used_set);
 
-                    // can we replace this case ?
-                    if (existing_value === Piece.EMPTY || (opposed_side && is_stronger)) {
-                        used_set.add (v_id);
-                        board.set (x, y, value);
+        for (let move of moves) {
+            const {x, y, strength, v_id} = move;
+            const value = strength;
+            const existing_value = board.get (x, y);
+            
+            used_set.add (v_id);
+            board.set (x, y, value);
 
-                        const score = this.minimax (-Infinity, +Infinity, false, board, remaining_values, used_set, 1, max_depth);
-                        if (score > max_score) {
-                            max_score = score;
-                            best_move = new Move (x, y, value);
-                        }
-
-                        // undo
-                        // existing_value can take 0 too
-                        board.set (x, y, existing_value);
-                        used_set.delete (v_id);
-                    }
-                }
+            const score = this.minimax (-Infinity, +Infinity, false, board, remaining_values, used_set, 1, max_depth);
+            if (score > max_score) {
+                max_score = score;
+                best_move = move;
             }
+
+            // undo
+            // existing_value can take 0 too
+            board.set (x, y, existing_value);
+            used_set.delete (v_id);
         }
 
         return best_move;
@@ -216,50 +211,36 @@ class AI {
         this.statistics.total_call_count++;
 
         let score = maximizing ? -Infinity : +Infinity;
-        const values = remaining_values.get (maximizing ? Piece.BLACK : Piece.WHITE);
-        const dim = board.dim;
 
-        for (let y = 0; y < dim; y++) {
-            for (let x = 0; x < dim; x++) {
-                for (let i = 0; i < values.length; i++) {
-                    const value = values[i];
-                    const v_id = getIdValue (value, i);
+        const side = maximizing ? Piece.BLACK : Piece.WHITE;
+        const moves = AI.generateMoves (board, side, remaining_values, used_set);
 
-                    // piece already used
-                    if (used_set.has (v_id))
-                        continue;
-                    
-                    // 0 if empty
-                    const existing_value = board.get (x, y);
-                    const opposed_side = existing_value * value < 0;
-                    const is_stronger = Math.abs(value) > Math.abs(existing_value);
+        for (let move of moves) {
+            const {x, y, strength, v_id} = move;
+            const value = strength;
+            const existing_value = board.get (x, y);
 
-                    // can we replace this case ?
-                    if (existing_value === Piece.EMPTY || (opposed_side && is_stronger)) {
-                        used_set.add (v_id);
-                        board.set (x, y, value);
+            used_set.add (v_id);
+            board.set (x, y, value);
 
-                        const computed = this.minimax (alpha, beta, !maximizing, board, remaining_values, used_set, current_depth + 1, max_depth);
-                        if (maximizing) {
-                            score = Math.max (score, computed);
-                            alpha = Math.max (alpha, score);
-                        } else {
-                            score = Math.min (score, computed);
-                            beta = Math.min (beta, score);
-                        }
+            const computed = this.minimax (alpha, beta, !maximizing, board, remaining_values, used_set, current_depth + 1, max_depth);
+            if (maximizing) {
+                score = Math.max (score, computed);
+                alpha = Math.max (alpha, score);
+            } else {
+                score = Math.min (score, computed);
+                beta = Math.min (beta, score);
+            }
 
-                        // undo
-                        // existing_value can take 0 too
-                        board.set (x, y, existing_value);
-                        used_set.delete (v_id);
+            // undo
+            // existing_value can take 0 too
+            board.set (x, y, existing_value);
+            used_set.delete (v_id);
 
-                        // prune next branch
-                        if (beta <= alpha) {
-                            this.statistics.last_call_prune_count++;
-                            break;
-                        }
-                    }
-                }
+            // prune next branch
+            if (beta <= alpha) {
+                this.statistics.last_call_prune_count++;
+                break;
             }
         }
 
@@ -286,6 +267,42 @@ class AI {
         remaining_values.set (Piece.WHITE, fetchUnused (Piece.WHITE));
 
         return new AIInput (remaining_values, board_copy);  
+    }
+
+
+    /**
+     * @param {Board} board
+     * @param {number} side -1 or 1
+     * @param {Map<number, number[]} remaining_values 
+     * @param {Set<string>} used_set 
+     * @returns {Move[]}
+     */
+    static generateMoves (board, side, remaining_values, used_set = new Set()) {
+        const moves = [];
+        const dim = board.dim;
+        const values = remaining_values.get (side);
+        for (let y = 0; y < dim; y++) {
+            for (let x = 0; x < dim; x++) {
+                for (let i = 0; i < values.length; i++) {
+                    const value = values[i];
+                    const v_id = getIdValue (value, i);
+                    if (used_set.has (v_id))
+                        continue;
+                    // 0 if empty
+                    const existing_value = board.get (x, y);
+                    const opposed_side = existing_value * value < 0;
+                    const is_stronger = Math.abs(value) > Math.abs(existing_value);
+
+                    // can we replace the existing piece / use this case ?
+                    if (existing_value === Piece.EMPTY || (opposed_side && is_stronger)) {
+                        const move = new Move (x, y, value);
+                        move.v_id = v_id;
+                        moves.push (move);
+                    }
+                }
+            }
+        }
+        return moves;
     }
 
     /**
