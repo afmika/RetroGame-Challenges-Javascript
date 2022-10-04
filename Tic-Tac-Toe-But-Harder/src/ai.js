@@ -317,7 +317,9 @@ class AI {
     static rearrangeMovesUsingHeuristic (moves, enable_cluster_randomize = false) {
         // /!\ Pruning heuristic for alpha-beta
         // low value moves are more likely to prioritize low-strength pieces
-        // hence we sort in descending order
+        // In our setup we sort in descending order :
+        // - Pruning factor is almost the same for ASC or DESC (>~40%)
+        // - DESC prioritizes high-value moves : pieces are less likely to be 'eaten'
         moves = moves.sort ((a, b) => {
             return Math.abs (b.strength) - Math.abs (a.strength);
         });
