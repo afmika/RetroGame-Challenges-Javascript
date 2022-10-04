@@ -144,6 +144,10 @@ class AI {
         return new Move (rx, ry, rvalue);
     }
 
+    //
+    // Core AI
+    //
+
     /**
      * @param {number?} max_depth 
      * @returns {Move}
@@ -255,13 +259,9 @@ class AI {
         const board_copy = this.game.board.copy ();
         const remaining_values = new Map();
         const fetchUnused = type => {
-            // /!\ Pruning heuristic for alpha-beta
-            // low value moves are more likely to prioritize low-strength pieces
-            // hence we sort in ascending order
             return this.game
                     .findUnusedPiece (type)
-                    .map (piece => piece.oriented_strength)
-                    .sort ((a, b) => a - b);
+                    .map (piece => piece.oriented_strength);
         };
         remaining_values.set (Piece.BLACK, fetchUnused (Piece.BLACK));
         remaining_values.set (Piece.WHITE, fetchUnused (Piece.WHITE));
@@ -269,6 +269,9 @@ class AI {
         return new AIInput (remaining_values, board_copy);  
     }
 
+    //
+    // dealing with moves
+    //
 
     /**
      * @param {Board} board
@@ -302,8 +305,71 @@ class AI {
                 }
             }
         }
+
+        AI.rearrangeMovesUsingHeuristic (moves, true);
         return moves;
     }
+
+    /**
+     * @param {Move[]} moves 
+     * @param {boolean} enable_cluster_randomize 
+     */
+    static rearrangeMovesUsingHeuristic (moves, enable_cluster_randomize = false) {
+        // /!\ Pruning heuristic for alpha-beta
+        // low value moves are more likely to prioritize low-strength pieces
+        // hence we sort in descending order
+        moves = moves.sort ((a, b) => {
+            return Math.abs (b.strength) - Math.abs (a.strength);
+        });
+        
+        if (!enable_cluster_randomize)
+            return moves;
+        
+        // /!\
+        // experiment
+
+        // To avoid repeating patterns
+        // for each strength type we might want to
+        // randomize which move should be prioritized
+        // Note : each type (cluster) has been sorted in ascending order at this point
+        /** @type {Map<number, Move[]>} */
+        const clusters = new Map ();
+        for (let move of moves) {
+            if (!clusters.has (move.strength))
+                clusters.set (move.strength, []);
+            clusters.get (move.strength)
+                    .push (move);
+        }
+
+        const rngIndex = x => Math.floor (x * Math.random ());
+        // Fisher-Yates shuffle
+        const shuffleArray = (arr) => {
+            let total_remaining = arr.length;
+            for (let i = arr.length - 1; i > 0; i--) {
+                const picked = rngIndex (total_remaining--);
+                [arr[picked], arr[i]] = [arr[i], arr[picked]];
+            }
+        };
+        
+        const strength_types = Array.from (clusters.keys());
+        const rearranged_moves = [];
+
+        for (let type of strength_types) {
+            const moves_of_this_type = clusters.get (type);
+            shuffleArray (moves_of_this_type);
+            for (let move of moves_of_this_type)
+                rearranged_moves.push (move);
+        }
+
+        assert (rearranged_moves.length == moves.length, 'expects same length');
+
+        return rearranged_moves;
+    }
+
+
+    // 
+    // statistics
+    //
 
     /**
      * @param  {...string} str 
@@ -333,6 +399,23 @@ class AI {
         AI.statistics_history.push (this.statistics);
         // reset
         this.statistics = new Statistics ();
+    }
+
+    /**
+     * @param {number} side 1 or -1 (-1 by default) 
+     */
+    logPossibleMoves (side = Piece.BLACK) {
+        const {remaining_values, } = this.prepareInput();
+        const moves = AI.generateMoves(this.game.board, side, remaining_values);
+        console.log (
+            moves.length + ' moves :\n' 
+            + moves
+                .map (move => {
+                    const {x, y, strength, v_id} = move;
+                    return ` x = ${x}, y = ${y} | strength : ${strength} (v_id = ${v_id})`;
+                })
+                .join('\n')
+        )
     }
 
     /**
