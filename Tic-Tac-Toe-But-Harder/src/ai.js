@@ -115,20 +115,20 @@ class AI {
         const dim = board.dim;
         const values = remaining_values.get (Piece.BLACK);
 
-        let possibilites = [];
+        let possibilities = [];
         for (let y = 0; y < dim; y++) {
             for (let x = 0; x < dim; x++) {
                 const existing_piece = board.get (x, y);
                 if (existing_piece === Piece.EMPTY)
-                    possibilites.push ([x, y]);
+                possibilities.push ([x, y]);
             }
         }
 
-        if (possibilites.length == 0)
+        if (possibilities.length == 0)
             throw Error ('Unable to find a random a move, empty_count = 0');
 
         const rng = x => Math.floor (x * Math.random ());
-        const [rx, ry] = possibilites [rng (possibilites.length)];
+        const [rx, ry] = possibilities [rng (possibilities.length)];
         const rvalue = values [rng (values.length)];
 
         return new Move (rx, ry, rvalue);
@@ -267,7 +267,7 @@ class AI {
         const board_copy = this.game.board.copy ();
         const remaining_values = new Map();
         const fetchUnused = type => {
-            // /!\ Pruning heurestic for alpha-beta
+            // /!\ Pruning heuristic for alpha-beta
             // low value moves are more likely to prioritize low-strength pieces
             // hence we sort in ascending order
             return this.game
