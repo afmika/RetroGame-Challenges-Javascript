@@ -51,7 +51,10 @@ function setup () {
 
 function start () {
     console.log('=== New game initialized - level set to ' + defined_level + ' ===');
-    game = new Game (N_ROW);
+    if (game === null)
+        game = new Game (N_ROW);
+    else
+        game.init (N_ROW);
     computer = new AI (game);
     preparePiecesPositions ();
     winner = null;
@@ -135,12 +138,26 @@ function draw () {
 
 // event handlers
 function keyPressed () {
-    if (winner != null)
-        start();
-    if (keyCode == BACKSPACE || keyCode == ESCAPE || keyCode == 32) {
+    const D_BTN = 68;
+    if (keyCode == BACKSPACE || keyCode == ESCAPE || keyCode == D_BTN) {
+        if (winner != null)
+            start();
         show_menu = false;
         hideLog ();
         tic_effect.play ();
+        
+        // hidden feature
+        // download replay
+        if (keyCode == D_BTN) {
+            if (game == null) return;
+            const content = Game.all_replays
+                                .map(replay => {
+                                    return replay.join('\n');
+                                })
+                                .join('\n-------------\n');
+            const date_str = new Date ().toJSON();
+            downloadTextfile ('replay-' + date_str + '.txt', content);
+        }
     }
 }
 

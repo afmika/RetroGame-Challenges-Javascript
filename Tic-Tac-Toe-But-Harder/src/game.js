@@ -27,14 +27,34 @@ class Game {
     max_strength = 0;
 
     /**
+     * List of played moves as string
+     * * Format x=\d+ y=\d+ strength=\d+
+     * @type {string[]}
+     */
+    replay = [];
+
+    /**
+     * @type {string[][]}
+     */
+    static all_replays = [];
+
+    /**
      * @param {number} dim 
      */
     constructor (dim) {
-        this.dim = dim;
-        this.init ();
+        this.init (dim);
     }
 
-    init () {
+    /**
+     * @param {number} dim 
+     */
+    init (dim) {
+        this.dim = dim || 3;
+
+        if (this.replay.length > 0)
+            Game.all_replays.push (this.replay);
+        this.replay = [];
+
         this.board = new Board (this.dim);
         this.pieces_remaining = new Map();
 
@@ -131,5 +151,18 @@ class Game {
         this.board.putPiece (x, y, piece);
         piece._board.x = x;
         piece._board.y = y;
+
+        this.recordMove (x, y, piece.oriented_strength);
+    }
+
+    /**
+     * @private
+     * @param {number} x 
+     * @param {number} y 
+     * @param {number} strength 
+     */
+    recordMove (x, y, strength) {
+        const str = `x=${x} y=${y} strength=${strength}`;
+        this.replay.push (str);
     }
 }

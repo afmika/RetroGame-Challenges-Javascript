@@ -26,6 +26,21 @@ const getIdValue = (value, index) => {
     return 'i' + index + '_' + (value * Piece.BLACK > 0 ? 'b' : 'w') + Math.abs(value);
 }
 
+/**
+ * @param {string} filename 
+ * @param {string} content 
+ */
+const downloadTextfile = (filename, content) =>{
+    assert (content != null && typeof content == 'string', 'content should contain a string');
+    assert (filename != null && typeof content == 'string', 'filename should contain a string');
+    const element = document.createElement ('a');
+    element.setAttribute ('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+    element.setAttribute ('download', filename);
+    document.body.appendChild (element);
+    element.click ();
+    document.body.removeChild (element);
+}
+
 class Piece {
     static EMPTY = 0;
     static BLACK = -1;
